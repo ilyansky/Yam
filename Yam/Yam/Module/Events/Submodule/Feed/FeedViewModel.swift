@@ -40,17 +40,12 @@ final class FeedViewModel: ObservableObject {
     @Published var isLoading = false
     var isFirstPack = true
     var lastDoc: DocumentSnapshot? = nil
-    var isEndReached = false {
-        didSet {
-            Task {
-                await loadItems(isFirstPack: isFirstPack)
-            }
-        }
-    }
+    var isEndReached = false
+    var addFromIndex = 0
 
     init() {
         Task {
-            await loadItems(isFirstPack: isFirstPack)
+            await loadPack()
         }
     }
 
@@ -65,11 +60,11 @@ extension FeedViewModel {
         return EventHandler.getEventsCountString(count)
     }
 
-    private func getEventIDs() async {
+    private func updateEventIDs() async {
         guard let userID = authInteractor.getUserID() else { return }
 
-        await dbService.getEventIDs(userID: userID, my: true)
-        await dbService.getEventIDs(userID: userID, my: false)
+        await dbService.updateMyEventIDs(userID: userID)
+        await dbService.updateSubscriptionIDs(userID: userID)
     }
 
 }
@@ -143,7 +138,7 @@ extension FeedViewModel: EventCardViewModelProtocol {
         do {
             let updatedEvent = try await dbService.getEventFromFeed(by: eventID)
 
-            await getEventIDs()
+            await updateEventIDs()
             
             if let index = feedEvents.firstIndex(where: { $0.id == updatedEvent.id }) {
                 feedEvents[index] = updatedEvent
@@ -160,19 +155,17 @@ extension FeedViewModel: EventCardViewModelProtocol {
 extension FeedViewModel: TableFetchDataProtocol {
 
     @MainActor
-    func loadItems(isFirstPack: Bool) async {
+    func loadPack() async {
         guard !isLoading,
               !isEndReached else { return }
 
         if isFirstPack {
-            await getEventIDs()
+            await updateEventIDs()
         }
 
         isLoading = true
 
-        let result = isFirstPack
-        ? await dbService.loadFeed(lastDoc: nil)
-        : await dbService.loadFeed(lastDoc: lastDoc)
+        let result = await dbService.loadFeed(lastDoc: isFirstPack ? nil : lastDoc)
 
         if isFirstPack {
             feedEvents = result.events

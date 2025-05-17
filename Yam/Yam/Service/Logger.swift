@@ -99,12 +99,8 @@ extension Logger {
             print("Load image fail by path = \(path), error desc = \(error.localizedDescription)")
         }
 
-        static func initialMyEventsLoadFail(_ error: Error) {
-            print("Initial myEvents load fail, error desc = \(error.localizedDescription)")
-        }
-
-        static func nextPackMyEventsLoadFail(_ error: Error) {
-            print("Next pack myEvents load fail, error desc = \(error.localizedDescription)")
+        static func loadEventPackFail(_ error: Error) {
+            print("Load event pack fail, error desc = \(error.localizedDescription)\n")
         }
 
     }

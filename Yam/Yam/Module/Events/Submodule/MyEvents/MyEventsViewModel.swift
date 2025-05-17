@@ -21,19 +21,13 @@ final class MyEventsViewModel: ObservableObject {
 
     // TableFetchDataProtocol
     @Published var isLoading = false
-    var lastDoc: DocumentSnapshot? = nil
+    var addFromIndex = 0
     var isEndReached = false
-    var isFirstPack = true {
-        didSet {
-            Task {
-                await loadItems(isFirstPack: isFirstPack)
-            }
-        }
-    }
+    var isFirstPack = true 
 
     init() {
         Task {
-            await loadItems(isFirstPack: isFirstPack)
+            await loadPack()
         }
     }
 
@@ -51,10 +45,10 @@ extension MyEventsViewModel {
         EventHandler.getEventsCountString(myEvents.count)
     }
 
-    private func getEventIDs() async {
+    private func updateMyEventIDs() async {
         guard let userID = authInteractor.getUserID() else { return }
 
-        await dbService.getEventIDs(userID: userID, my: true)
+        await dbService.updateMyEventIDs(userID: userID)
     }
 
 }
@@ -88,7 +82,7 @@ extension MyEventsViewModel: EventCardViewModelProtocol {
         do {
             let updatedEvent = try await dbService.getEventFromFeed(by: eventID)
 
-            await getEventIDs()
+            await updateMyEventIDs()
 
             if let index = myEvents.firstIndex(where: { $0.id == updatedEvent.id }) {
                 myEvents[index] = updatedEvent
@@ -106,35 +100,21 @@ extension MyEventsViewModel: EventCardViewModelProtocol {
 
 extension MyEventsViewModel: TableFetchDataProtocol {
 
-    func removeEventFromTable(eventID: String) {
-        guard let index = myEvents.firstIndex(where: { $0.id == eventID} ) else {
-            Logger.MyEvents.eventNotRemovedFromTable(eventID: eventID)
-            return
-        }
-
-
-        myEvents.remove(at: index)
-        Logger.MyEvents.eventRemovedFromTable(eventID: eventID)
-    }
-
     @MainActor
-    func loadItems(isFirstPack: Bool) async {
-        guard let userID = authInteractor.getUserID(),
-              !isLoading,
+    func loadPack() async {
+        guard !isLoading,
               !isEndReached else { return }
 
         if isFirstPack {
-            await getEventIDs()
+            await updateMyEventIDs()
         }
 
         isLoading = true
 
-        let result: (events: [Event], newLastDoc: DocumentSnapshot?, isEndReached: Bool)
-        result = await dbService.loadEvents(isMy: true, for: userID, lastDoc: isFirstPack ? nil : lastDoc)
-        myEvents = isFirstPack ? result.events : myEvents + result.events
-
-        lastDoc = result.newLastDoc
-        isEndReached = result.isEndReached
+        let loadResult = await dbService.loadEventPack(addFromIndex: addFromIndex, my: true)
+        myEvents = isFirstPack ? loadResult.pack : myEvents + loadResult.pack
+        addFromIndex = loadResult.newAddFromIndex
+        isEndReached = loadResult.isEndReached
 
         isLoading = false
 
@@ -149,10 +129,21 @@ extension MyEventsViewModel: TableFetchDataProtocol {
 
         myEvents.removeAll()
         isFirstPack = true
-        lastDoc = nil
+        addFromIndex = 0
         isEndReached = false
 
         isLoading = false
+    }
+
+    func removeEventFromTable(eventID: String) {
+        guard let index = myEvents.firstIndex(where: { $0.id == eventID} ) else {
+            Logger.MyEvents.eventNotRemovedFromTable(eventID: eventID)
+            return
+        }
+
+
+        myEvents.remove(at: index)
+        Logger.MyEvents.eventRemovedFromTable(eventID: eventID)
     }
 
 }

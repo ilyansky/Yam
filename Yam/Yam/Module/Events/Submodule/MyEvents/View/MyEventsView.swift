@@ -14,6 +14,15 @@ struct MyEventsView: View {
                         event: event
                     )
                     .listRowSeparator(.hidden)
+                    .onAppear {
+                        if let id = viewModel.myEvents.last?.id {
+                            if event.id == id {
+                                Task {
+                                    await viewModel.loadPack()
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if viewModel.myEvents.isEmpty {

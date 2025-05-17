@@ -68,10 +68,6 @@ extension AuthViewModel {
         }
     }
 
-    private func isCurrentUserAuthorized() -> Bool {
-        authInteractor.isCurrentUserAuthorized()
-    }
-
     private func clearTextFields() {
         email = ""
         password = ""

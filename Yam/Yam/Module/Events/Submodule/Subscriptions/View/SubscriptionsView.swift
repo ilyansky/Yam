@@ -14,6 +14,15 @@ struct SubscriptionsView: View {
                         event: event
                     )
                     .listRowSeparator(.hidden)
+                    .onAppear {
+                        if let id = viewModel.subscriptions.last?.id {
+                            if event.id == id {
+                                Task {
+                                    await viewModel.loadPack()
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if viewModel.subscriptions.isEmpty {

@@ -10,6 +10,7 @@ struct Event: Identifiable, Hashable, Codable {
     var link: String
     var date: Date
     var place: Place
+    var userIDs: [String]
 
     var representation: [String: Any] {
         var res = [String: Any]()
@@ -21,6 +22,7 @@ struct Event: Identifiable, Hashable, Codable {
         res["link"] = link
         res["date"] = date
         res["place"] = place.representation
+        res["userIDs"] = userIDs
 
         return res
     }

@@ -30,11 +30,11 @@ final class EventsAccordionViewModel: ObservableObject {
         }
     }
 
-    private func getEventIDs() async {
+    private func updateEventIDs() async {
         guard let userID = authInteractor.getUserID() else { return }
 
-        await dbService.getEventIDs(userID: userID, my: true)
-        await dbService.getEventIDs(userID: userID, my: false)
+        await dbService.updateMyEventIDs(userID: userID)
+        await dbService.updateSubscriptionIDs(userID: userID)
     }
 
 }
@@ -118,7 +118,7 @@ extension EventsAccordionViewModel: EventCardViewModelProtocol {
 
     @MainActor
     func updateEvent(eventID: String) async {
-        await getEventIDs()
+        await updateEventIDs()
 
         do {
             let updatedEvent = try await dbService.getEventFromFeed(by: eventID)

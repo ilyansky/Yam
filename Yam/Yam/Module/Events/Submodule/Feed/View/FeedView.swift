@@ -18,6 +18,15 @@ struct FeedView: View {
                             event: event
                         )
                         .listRowSeparator(.hidden)
+                        .onAppear {
+                            if let id = viewModel.feedEvents.last?.id {
+                                if event.id == id {
+                                    Task {
+                                        await viewModel.loadPack()
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     if viewModel.isLoading {

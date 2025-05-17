@@ -87,11 +87,11 @@ extension MapViewModel {
         EventHandler.getEventsCountString(mapEvents.count)
     }
 
-    private func getEventIDs() async {
+    private func updateEventIDs() async {
         guard let userID = authInteractor.getUserID() else { return }
 
-        await dbService.getEventIDs(userID: userID, my: true)
-        await dbService.getEventIDs(userID: userID, my: false)
+        await dbService.updateMyEventIDs(userID: userID)
+        await dbService.updateSubscriptionIDs(userID: userID)
     }
 
 }
@@ -135,7 +135,7 @@ extension MapViewModel {
 extension MapViewModel {
 
     func showEventsAccordion(eventPack: [Event]) async {
-        await getEventIDs()
+        await updateEventIDs()
 
         currentEventPack = eventPack
         isActiveEventsAccordion = true

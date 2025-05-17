@@ -36,24 +36,31 @@ extension EventCardViewModelProtocol {
 
         switch eventType {
         case .added:
-            guard subscriptionsContainsEvent &&
-                    event.seats.busy > 0 else {
+            // можно ли отписаться от ивента?
+            guard subscriptionsContainsEvent,
+                  event.seats.busy > 0,
+                  let userToRemoveIndex = event.userIDs.firstIndex(of: userID) else {
                 return nil
             }
 
+            // изменяем поля ивента
             var newEvent = event
             newEvent.seats.busy -= 1
+            newEvent.userIDs.remove(at: userToRemoveIndex)
 
             return newEvent
 
         case .notAdded:
+            // можно ли подписаться на ивент?
             guard !subscriptionsContainsEvent &&
                     event.seats.busy < event.seats.all else {
                 return nil
             }
 
+            // изменяем поля ивента
             var newEvent = event
             newEvent.seats.busy += 1
+            newEvent.userIDs.append(userID)
 
             return newEvent
 

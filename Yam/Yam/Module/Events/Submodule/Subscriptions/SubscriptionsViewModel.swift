@@ -19,19 +19,13 @@ final class SubscriptionsViewModel: ObservableObject {
 
     // TableFetchDataProtocol
     @Published var isLoading = false
-    var lastDoc: DocumentSnapshot? = nil
+    var addFromIndex = 0
     var isEndReached = false
-    var isFirstPack = true {
-        didSet {
-            Task {
-                await loadItems(isFirstPack: isFirstPack)
-            }
-        }
-    }
+    var isFirstPack = true
 
     init() {
         Task {
-            await loadItems(isFirstPack: isFirstPack)
+            await loadPack()
         }
     }
 
@@ -53,10 +47,10 @@ extension SubscriptionsViewModel {
         }
     }
 
-    private func getEventIDs() async {
+    private func updateSubscriptionIDs() async {
         guard let userID = authInteractor.getUserID() else { return }
 
-        await dbService.getEventIDs(userID: userID, my: false)
+        await dbService.updateSubscriptionIDs(userID: userID)
     }
 
 }
@@ -133,7 +127,7 @@ extension SubscriptionsViewModel: EventCardViewModelProtocol {
         do {
             let updatedEvent = try await dbService.getEventFromFeed(by: eventID)
 
-            await getEventIDs()
+            await updateSubscriptionIDs()
 
             if let index = subscriptions.firstIndex(where: { $0.id == updatedEvent.id }) {
                 subscriptions[index] = updatedEvent
@@ -152,23 +146,20 @@ extension SubscriptionsViewModel: EventCardViewModelProtocol {
 extension SubscriptionsViewModel: TableFetchDataProtocol {
 
     @MainActor
-    func loadItems(isFirstPack: Bool) async {
-        guard let userID = authInteractor.getUserID(),
-              !isLoading,
+    func loadPack() async {
+        guard !isLoading,
               !isEndReached else { return }
 
         if isFirstPack {
-            await getEventIDs()
+            await updateSubscriptionIDs()
         }
 
         isLoading = true
 
-        let result: (events: [Event], newLastDoc: DocumentSnapshot?, isEndReached: Bool)
-        result = await dbService.loadEvents(isMy: false, for: userID, lastDoc: isFirstPack ? nil : lastDoc)
-        subscriptions = isFirstPack ? result.events : subscriptions + result.events
-
-        lastDoc = result.newLastDoc
-        isEndReached = result.isEndReached
+        let loadResult = await dbService.loadEventPack(addFromIndex: addFromIndex, my: false)
+        subscriptions = isFirstPack ? loadResult.pack : subscriptions + loadResult.pack
+        addFromIndex = loadResult.newAddFromIndex
+        isEndReached = loadResult.isEndReached
 
         isLoading = false
 
@@ -183,7 +174,7 @@ extension SubscriptionsViewModel: TableFetchDataProtocol {
 
         subscriptions.removeAll()
         isFirstPack = true
-        lastDoc = nil
+        addFromIndex = 0
         isEndReached = false
 
         isLoading = false

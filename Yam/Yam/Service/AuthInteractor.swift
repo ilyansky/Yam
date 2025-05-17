@@ -1,5 +1,6 @@
 import Foundation
 import FirebaseAuth
+import Combine
 
 final class AuthInteractor {
 
@@ -7,12 +8,20 @@ final class AuthInteractor {
     private let auth = Auth.auth()
     private let dbService = DatabaseService.shared
 
+    @Published private(set) var isUserAuthorized = false
+
     var currentUser: User? {
         auth.currentUser
     }
 
     private init() {
-        Logger.Auth.printCurrentUserSession(auth.currentUser)
+        self.isUserAuthorized = auth.currentUser != nil
+
+        auth.addStateDidChangeListener { [weak self] _, user in
+            guard let self = self else { return }
+            self.isUserAuthorized = user != nil
+            Logger.Auth.printCurrentUserSession(auth.currentUser)
+        }
     }
 
 }
@@ -25,10 +34,6 @@ extension AuthInteractor {
         }
 
         return nil
-    }
-
-    func isCurrentUserAuthorized() -> Bool {
-        currentUser != nil
     }
 
     func signUp(

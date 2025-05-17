@@ -183,7 +183,8 @@ extension BuildEventViewModel {
             seats: seats,
             link: link,
             date: date,
-            place: place
+            place: place,
+            userIDs: []
         )
 
         return event
@@ -254,7 +255,8 @@ extension BuildEventViewModel {
             seats: seats,
             link: link,
             date: date,
-            place: place
+            place: place,
+            userIDs: oldEvent.userIDs
         )
 
         return event

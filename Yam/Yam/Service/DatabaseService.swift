@@ -9,8 +9,8 @@ final class DatabaseService: ObservableObject {
     static let shared = DatabaseService()
     private let db = Firestore.firestore()
 
-    @Published var myEventsIDs = Set<String>()
-    @Published var subscriptionsIDs = Set<String>()
+    @Published var myEventsIDs = [String]()
+    @Published var subscriptionsIDs = [String]()
 
     private init() {}
 
@@ -34,25 +34,8 @@ extension DatabaseService {
         db.collection("feed")
     }
 
-    private func getEventInFeed(eventID: String) -> DocumentReference {
+    private func getEventRefFromFeed(eventID: String) -> DocumentReference {
         getFeedCollection().document(eventID)
-    }
-
-    //
-    private func getMyEventsCollection(userID: String) -> CollectionReference {
-        getUserRef(userID: userID).collection("myEvents")
-    }
-
-    private func getSubscriptionsCollection(userID: String) -> CollectionReference {
-        getUserRef(userID: userID).collection("subscriptions")
-    }
-
-    private func getEventInMyEvents(userID: String, eventID: String) -> DocumentReference {
-        getMyEventsCollection(userID: userID).document(eventID)
-    }
-
-    private func getEventInSubscriptions(userID: String, eventID: String) -> DocumentReference {
-        getSubscriptionsCollection(userID: userID).document(eventID)
     }
 
 }
@@ -79,35 +62,36 @@ extension DatabaseService {
 
 extension DatabaseService {
 
-    func loadEvents(
-        isMy: Bool,
-        for userID: String,
-        lastDoc: DocumentSnapshot?
-    ) async -> (events: [Event], newLastDoc: DocumentSnapshot?, isEndReached: Bool) {
+    func loadEventPack(
+        addFromIndex: Int,
+        my: Bool
+    ) async -> (pack: [Event], newAddFromIndex: Int, isEndReached: Bool) {
+        let right = min(addFromIndex + 3, my ? myEventsIDs.count - 1 : subscriptionsIDs.count - 1)
+        guard right >= addFromIndex else { return ([], 0, true) }
+
         do {
-            var query = isMy
-            ? getMyEventsCollection(userID: userID).order(by: "date", descending: false)
-            : getSubscriptionsCollection(userID: userID).order(by: "date", descending: false)
-            if let lastDoc {
-                query = query.start(afterDocument: lastDoc)
+            var pack = [Event]()
+            var isEndReached = false
+
+            let eventIDs = my ? myEventsIDs[addFromIndex...right] : subscriptionsIDs[addFromIndex...right]
+
+            for id in eventIDs {
+                let event = try await getEventFromFeed(by: id)
+                pack.append(event)
             }
-            query = query.limit(to: 25)
 
-            let snapshot = try await query.getDocuments()
-            let newEvents = try snapshot.documents.compactMap { try $0.data(as: Event.self) }
-            let newLastDoc = snapshot.documents.last
-            let isEndReached = newEvents.isEmpty
+            let newAddFromIndex = addFromIndex + eventIDs.count
 
-            return (newEvents, newLastDoc, isEndReached)
+            if newAddFromIndex >= (my ? myEventsIDs.count : subscriptionsIDs.count) {
+                isEndReached = true
+            }
+
+            return (pack, newAddFromIndex, isEndReached)
         } catch {
-            if lastDoc != nil {
-                Logger.Events.initialMyEventsLoadFail(error)
-            } else {
-                Logger.Events.nextPackMyEventsLoadFail(error)
-            }
-
-            return ([], lastDoc, true)
+            Logger.Events.loadEventPackFail(error)
+            return ([], 0, true)
         }
+
     }
 
 }
@@ -116,7 +100,9 @@ extension DatabaseService {
 
 extension DatabaseService {
 
-    func loadFeed(lastDoc: DocumentSnapshot?) async -> (events: [Event], newLastDoc: DocumentSnapshot?, isEndReached: Bool) {
+    func loadFeed(lastDoc: DocumentSnapshot?) async -> (events: [Event],
+                                                        newLastDoc: DocumentSnapshot?,
+                                                        isEndReached: Bool) {
         do {
             var query = getFeedCollection().order(by: "date", descending: false)
             if let lastDoc {
@@ -195,8 +181,7 @@ extension DatabaseService {
 
     func addEventFor(userID: String, event: Event) async -> Bool {
         do {
-            try await getEventInFeed(eventID: event.id).setData(event.representation)
-            try await getEventInMyEvents(userID: userID, eventID: event.id).setData(event.representation)
+            try await getEventRefFromFeed(eventID: event.id).setData(event.representation)
 
             try await getUserRef(userID: userID).updateData([
                 "myEventsIDs": FieldValue.arrayUnion([event.id])
@@ -210,12 +195,8 @@ extension DatabaseService {
     }
 
     func editEventFor(userID: String, event: Event) async -> Bool {
-        let eventInFeed = getEventInFeed(eventID: event.id)
-        let eventInMyEvents = getEventInMyEvents(userID: userID, eventID: event.id)
-
         do {
-            try await eventInFeed.updateData(event.representation)
-            try await eventInMyEvents.updateData(event.representation)
+            try await getEventRefFromFeed(eventID: event.id).updateData(event.representation)
 
             Logger.BuildEvent.eventEditSuccess()
             return true
@@ -227,12 +208,17 @@ extension DatabaseService {
 
     func deleteEventFor(userID: String, event: Event) async -> Bool {
         do {
-            try await getEventInFeed(eventID: event.id).delete()
-            try await getEventInMyEvents(userID: userID, eventID: event.id).delete()
+            try await getEventRefFromFeed(eventID: event.id).delete()
 
             try await getUserRef(userID: userID).updateData([
                 "myEventsIDs": FieldValue.arrayRemove([event.id])
             ])
+
+            for userID in event.userIDs {
+                try await getUserRef(userID: userID).updateData([
+                    "subscriptionsIDs": FieldValue.arrayRemove([event.id])
+                ])
+            }
 
             Logger.BuildEvent.eventDeleteSuccess()
             return true
@@ -244,10 +230,9 @@ extension DatabaseService {
 
     func subscribeToTheEvent(userID: String, event: Event) async -> Bool {
         do {
-            try await getEventInSubscriptions(userID: userID, eventID: event.id).setData(event.representation)
-
-            try await getEventInFeed(eventID: event.id).updateData([
-                "seats.busy": event.seats.busy
+            try await getEventRefFromFeed(eventID: event.id).updateData([
+                "seats.busy": event.seats.busy,
+                "userIDs": event.userIDs
             ])
 
             try await getUserRef(userID: userID).updateData([
@@ -264,10 +249,9 @@ extension DatabaseService {
 
     func unsubscribeToTheEvent(userID: String, event: Event) async -> Bool {
         do {
-            try await getEventInSubscriptions(userID: userID, eventID: event.id).delete()
-
-            try await getEventInFeed(eventID: event.id).updateData([
-                "seats.busy": event.seats.busy
+            try await getEventRefFromFeed(eventID: event.id).updateData([
+                "seats.busy": event.seats.busy,
+                "userIDs": event.userIDs
             ])
 
             try await getUserRef(userID: userID).updateData([
@@ -282,23 +266,37 @@ extension DatabaseService {
         }
     }
 
-    func getEventIDs(userID: String, my: Bool) async {
+    func getEventFromFeed(by eventID: String) async throws -> Event {
+        let eventSnapshot = try await getFeedCollection().document(eventID).getDocument()
+        return try eventSnapshot.data(as: Event.self)
+    }
+
+}
+
+// MARK: - Support
+
+extension DatabaseService {
+
+    func updateMyEventIDs(userID: String) async {
+        await updateEventIDs(userID: userID, my: true)
+    }
+
+    func updateSubscriptionIDs(userID: String) async {
+        await updateEventIDs(userID: userID, my: false)
+    }
+
+    private func updateEventIDs(userID: String, my: Bool) async {
         do {
             let user = try await getUserRef(userID: userID).getDocument(as: YUser.self)
 
             if my {
-                myEventsIDs = Set(user.myEventsIDs)
+                myEventsIDs = user.myEventsIDs
             } else {
-                subscriptionsIDs = Set(user.subscriptionsIDs)
+                subscriptionsIDs = user.subscriptionsIDs
             }
         } catch {
             Logger.Feed.getEventsIDsFail(error)
         }
-    }
-
-    func getEventFromFeed(by eventID: String) async throws -> Event {
-        let eventSnapshot = try await getFeedCollection().document(eventID).getDocument()
-        return try eventSnapshot.data(as: Event.self)
     }
 
 }

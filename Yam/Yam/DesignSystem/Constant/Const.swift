@@ -55,7 +55,8 @@ enum Const {
             geopoint: GeoPoint(latitude: 0.0, longitude: 0.0),
             geohash: GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)),
             description: "1"
-        )
+        ),
+        userIDs: []
     )
     static let defaultEvent2: Event = Event(
         id: "2",
@@ -68,7 +69,8 @@ enum Const {
             geopoint: GeoPoint(latitude: 0.0, longitude: 0.0),
             geohash: GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)),
             description: "1"
-        )
+        ),
+        userIDs: []
     )
     static let defaultEvent3: Event = Event(
         id: "3",
@@ -81,7 +83,8 @@ enum Const {
             geopoint: GeoPoint(latitude: 0.0, longitude: 0.0),
             geohash: GFUtils.geoHash(forLocation: CLLocationCoordinate2D(latitude: 0.0, longitude: 0.0)),
             description: "1"
-        )
+        ),
+        userIDs: []
     )
     static let defaultGeoPoint = GeoPoint(latitude: 0.0, longitude: 0.0)
     static let defaultEventImage = UIImage(named: "default_event_image") ?? UIImage()
