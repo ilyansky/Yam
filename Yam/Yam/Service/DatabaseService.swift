@@ -91,7 +91,6 @@ extension DatabaseService {
             Logger.Events.loadEventPackFail(error)
             return ([], 0, true)
         }
-
     }
 
 }
@@ -273,7 +272,7 @@ extension DatabaseService {
 
 }
 
-// MARK: - Support
+// MARK: - Update event IDs
 
 extension DatabaseService {
 

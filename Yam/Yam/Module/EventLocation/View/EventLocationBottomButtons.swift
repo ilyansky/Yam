@@ -13,7 +13,7 @@ struct EventLocationBottomButtons: View {
                     showEvent()
                 } label: {
                     UnlimitedText(text: "ивент",
-                                  background: Gradient.indigoPurple)
+                                  background: Gradient.purpleIndigo)
                 }
 
                 LocationButton {

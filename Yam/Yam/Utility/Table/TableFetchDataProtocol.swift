@@ -9,6 +9,8 @@ protocol TableFetchDataProtocol {
     var isFirstPack: Bool { get set }
 
     func loadPack() async
+    func updateEventIDs() async
+    func updateEvent(eventID: String) async
     func refresh() async
 
 }

@@ -118,7 +118,7 @@ extension EventsAccordionViewModel: EventCardViewModelProtocol {
 
     @MainActor
     func updateEvent(eventID: String) async {
-        await updateEventIDs()
+        await updateEventIDs() // нужно для смены кнопки подписки / отписка
 
         do {
             let updatedEvent = try await dbService.getEventFromFeed(by: eventID)

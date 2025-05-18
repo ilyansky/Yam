@@ -37,18 +37,31 @@ final class MyEventsViewModel: ObservableObject {
 
 extension MyEventsViewModel {
 
+    @MainActor
+    func removeEventFromTable(eventID: String) {
+        guard let index = myEvents.firstIndex(where: { $0.id == eventID} ) else {
+            Logger.MyEvents.eventNotRemovedFromTable(eventID: eventID)
+            return
+        }
+
+
+        myEvents.remove(at: index)
+        Logger.MyEvents.eventRemovedFromTable(eventID: eventID)
+    }
+
+    @MainActor
+    func loadNewEvent() async {
+        isEndReached = false
+        await updateEventIDs()
+        await loadPack()
+    }
+
     func showCreateEvent() {
         isActiveCreateEvent = true
     }
 
     func getMyEventsCount() -> String {
-        EventHandler.getEventsCountString(myEvents.count)
-    }
-
-    private func updateMyEventIDs() async {
-        guard let userID = authInteractor.getUserID() else { return }
-
-        await dbService.updateMyEventIDs(userID: userID)
+        EventHandler.getEventsCountString(dbService.myEventsIDs.count)
     }
 
 }
@@ -77,23 +90,6 @@ extension MyEventsViewModel: EventCardViewModelProtocol {
         return false
     }
 
-    @MainActor
-    func updateEvent(eventID: String) async {
-        do {
-            let updatedEvent = try await dbService.getEventFromFeed(by: eventID)
-
-            await updateMyEventIDs()
-
-            if let index = myEvents.firstIndex(where: { $0.id == updatedEvent.id }) {
-                myEvents[index] = updatedEvent
-            }
-
-            Logger.Feed.eventUpdated()
-        } catch {
-            Logger.Feed.eventNotUpdated(error)
-        }
-    }
-
 }
 
 // MARK: - Table
@@ -106,7 +102,7 @@ extension MyEventsViewModel: TableFetchDataProtocol {
               !isEndReached else { return }
 
         if isFirstPack {
-            await updateMyEventIDs()
+            await updateEventIDs()
         }
 
         isLoading = true
@@ -121,6 +117,27 @@ extension MyEventsViewModel: TableFetchDataProtocol {
         if isFirstPack { self.isFirstPack = false }
     }
 
+    func updateEventIDs() async {
+        guard let userID = authInteractor.getUserID() else { return }
+
+        await dbService.updateMyEventIDs(userID: userID)
+    }
+
+    @MainActor
+    func updateEvent(eventID: String) async {
+        do {
+            let updatedEvent = try await dbService.getEventFromFeed(by: eventID)
+
+            if let index = myEvents.firstIndex(where: { $0.id == updatedEvent.id }) {
+                myEvents[index] = updatedEvent
+            }
+
+            Logger.Feed.eventUpdated()
+        } catch {
+            Logger.Feed.eventNotUpdated(error)
+        }
+    }
+
     @MainActor
     func refresh() async {
         guard !isLoading else { return }
@@ -133,17 +150,8 @@ extension MyEventsViewModel: TableFetchDataProtocol {
         isEndReached = false
 
         isLoading = false
-    }
 
-    func removeEventFromTable(eventID: String) {
-        guard let index = myEvents.firstIndex(where: { $0.id == eventID} ) else {
-            Logger.MyEvents.eventNotRemovedFromTable(eventID: eventID)
-            return
-        }
-
-
-        myEvents.remove(at: index)
-        Logger.MyEvents.eventRemovedFromTable(eventID: eventID)
+        await loadPack()
     }
 
 }

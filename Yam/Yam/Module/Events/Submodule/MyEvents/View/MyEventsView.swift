@@ -46,9 +46,9 @@ struct MyEventsView: View {
         }
         .fullScreenCover(isPresented: $viewModel.isActiveCreateEvent) {
             BuildEventView()
-                .onDisappear {
+                .onDisappear() {
                     Task {
-                        await viewModel.refresh()
+                        await viewModel.loadNewEvent()
                     }
                 }
         }

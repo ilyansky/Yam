@@ -36,7 +36,7 @@ final class SubscriptionsViewModel: ObservableObject {
 extension SubscriptionsViewModel {
 
     func getSubscriptionsCount() -> String {
-        EventHandler.getEventsCountString(subscriptions.count)
+        EventHandler.getEventsCountString(dbService.subscriptionsIDs.count)
     }
 
     func getEventType(event: Event) -> EventType {
@@ -45,12 +45,6 @@ extension SubscriptionsViewModel {
         } else {
             return .notAdded
         }
-    }
-
-    private func updateSubscriptionIDs() async {
-        guard let userID = authInteractor.getUserID() else { return }
-
-        await dbService.updateSubscriptionIDs(userID: userID)
     }
 
 }
@@ -122,23 +116,6 @@ extension SubscriptionsViewModel: EventCardViewModelProtocol {
         }
     }
 
-    @MainActor
-    func updateEvent(eventID: String) async {
-        do {
-            let updatedEvent = try await dbService.getEventFromFeed(by: eventID)
-
-            await updateSubscriptionIDs()
-
-            if let index = subscriptions.firstIndex(where: { $0.id == updatedEvent.id }) {
-                subscriptions[index] = updatedEvent
-            }
-
-            Logger.Feed.eventUpdated()
-        } catch {
-            Logger.Feed.eventNotUpdated(error)
-        }
-    }
-
 }
 
 // MARK: - Table
@@ -151,7 +128,7 @@ extension SubscriptionsViewModel: TableFetchDataProtocol {
               !isEndReached else { return }
 
         if isFirstPack {
-            await updateSubscriptionIDs()
+            await updateEventIDs()
         }
 
         isLoading = true
@@ -166,6 +143,30 @@ extension SubscriptionsViewModel: TableFetchDataProtocol {
         if isFirstPack { self.isFirstPack = false }
     }
 
+
+    func updateEventIDs() async {
+        guard let userID = authInteractor.getUserID() else { return }
+
+        await dbService.updateSubscriptionIDs(userID: userID)
+    }
+
+    @MainActor
+    func updateEvent(eventID: String) async {
+        do {
+            let updatedEvent = try await dbService.getEventFromFeed(by: eventID)
+
+            await updateEventIDs() // нужно для смены кнопки подписки / отписки
+
+            if let index = subscriptions.firstIndex(where: { $0.id == updatedEvent.id }) {
+                subscriptions[index] = updatedEvent
+            }
+
+            Logger.Feed.eventUpdated()
+        } catch {
+            Logger.Feed.eventNotUpdated(error)
+        }
+    }
+
     @MainActor
     func refresh() async {
         guard !isLoading else { return }
@@ -178,6 +179,8 @@ extension SubscriptionsViewModel: TableFetchDataProtocol {
         isEndReached = false
 
         isLoading = false
+
+        await loadPack()
     }
 
 }

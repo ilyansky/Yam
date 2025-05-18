@@ -12,7 +12,6 @@ final class FeedViewModel: ObservableObject {
         willSet {
             guard searchString != newValue else { return }
             
-            Logger.ping()
             if newValue != "" {
                 searchedFeedEvents.removeAll()
 
@@ -58,13 +57,6 @@ extension FeedViewModel {
     func getFeedEventsCount() -> String {
         let count = feedEvents.filter { !dbService.myEventsIDs.contains($0.id) }.count
         return EventHandler.getEventsCountString(count)
-    }
-
-    private func updateEventIDs() async {
-        guard let userID = authInteractor.getUserID() else { return }
-
-        await dbService.updateMyEventIDs(userID: userID)
-        await dbService.updateSubscriptionIDs(userID: userID)
     }
 
 }
@@ -133,23 +125,6 @@ extension FeedViewModel: EventCardViewModelProtocol {
         }
     }
 
-    @MainActor
-    func updateEvent(eventID: String) async {
-        do {
-            let updatedEvent = try await dbService.getEventFromFeed(by: eventID)
-
-            await updateEventIDs()
-            
-            if let index = feedEvents.firstIndex(where: { $0.id == updatedEvent.id }) {
-                feedEvents[index] = updatedEvent
-            }
-            
-            Logger.Feed.eventUpdated()
-        } catch {
-            Logger.Feed.eventNotUpdated(error)
-        }
-    }
-
 }
 
 extension FeedViewModel: TableFetchDataProtocol {
@@ -183,6 +158,33 @@ extension FeedViewModel: TableFetchDataProtocol {
         if isFirstPack { self.isFirstPack = false }
     }
 
+    func updateEventIDs() async {
+        guard let userID = authInteractor.getUserID() else { return }
+
+        await dbService.updateMyEventIDs(userID: userID)
+        await dbService.updateSubscriptionIDs(userID: userID)
+    }
+
+    @MainActor
+    func updateEvent(eventID: String) async {
+        do {
+            let updatedEvent = try await dbService.getEventFromFeed(by: eventID)
+
+            await updateEventIDs() // нужно для смены кнопки подписки / отписки
+
+            if let index = feedEvents.firstIndex(where: { $0.id == updatedEvent.id }) {
+                feedEvents[index] = updatedEvent
+            }
+
+            if let index = searchedFeedEvents.firstIndex(where: { $0.id == updatedEvent.id }) {
+                searchedFeedEvents[index] = updatedEvent
+            }
+
+            Logger.Feed.eventUpdated()
+        } catch {
+            Logger.Feed.eventNotUpdated(error)
+        }
+    }
 
     @MainActor
     func refresh() async {
@@ -196,6 +198,8 @@ extension FeedViewModel: TableFetchDataProtocol {
         isEndReached = false
 
         isLoading = false
+
+        await loadPack()
     }
 
 }
