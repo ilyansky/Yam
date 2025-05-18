@@ -8,13 +8,13 @@
 3. Находи новые знакомства!⚽🏓🫂
 
 Стек:
-Архитектура - MVVM
-Интерфейс - SwiftUI
-Работа с данными - Combine
-Картинки - Cloudinary, SDWebImage
-Карта - MapKit, GeoFireUtils, ClusterMap
-Бэк - Firebase
-Менеджер зависимостей - SPM
+- Архитектура - MVVM
+- Интерфейс - SwiftUI
+- Работа с данными - Combine
+- Картинки - Cloudinary, SDWebImage
+- Карта - MapKit, GeoFireUtils, ClusterMap
+- Бэк - Firebase
+- Менеджер зависимостей - SPM
 
 Чтобы собрать проект, нужно: 
 1. Создать проект в Firebase и поместить файл GoogleService-Info.plist  в директорию Yam/Yam/Core.
