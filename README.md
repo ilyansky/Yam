@@ -14,6 +14,7 @@
 - Картинки - Cloudinary, SDWebImage
 - Карта - MapKit, GeoFireUtils, ClusterMap
 - Бэк - Firebase
+- Асинхронность - async / await, GCD
 - Менеджер зависимостей - SPM
 
 Чтобы собрать проект, нужно: 
