@@ -32,3 +32,8 @@ final class ImageService {
 
 }
 ```
+
+
+# Демо
+https://github.com/user-attachments/assets/2b863b47-f72d-4021-846d-9839e46fa916
+
