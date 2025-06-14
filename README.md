@@ -18,8 +18,13 @@
 - Менеджер зависимостей - SPM
 
 Чтобы собрать проект, нужно: 
-1. Создать проект в Firebase и поместить файл GoogleService-Info.plist  в директорию Yam/Yam/Core/Config.
-2. Создать файл APIKey.swift в директории Yam/Yam/Core/Config, получить секьюрные дынные на сайте https://cloudinary.com через открытый API, вставить в созданный файл следующий код, заменив плейсхолдеры на актуальные секьюрные данные: 
+1. Создать проект в Firebase.
+2. Добавить в проект в Firebase модуль Authentication, в качестве провайдера выбрать Email/Password. 
+3. Добавить в проект в Firebase модуль Firestore Database.
+4. Скачать файл GoogleService-Info.plist, поместить его в директорию Yam/Yam/Core/Config.
+5. Создать файл APIKey.swift в директории Yam/Yam/Core/Config.
+6. Получить `Cloud name` и `Upload preset name` на сайте https://cloudinary.com. ВАЖНО: Upload preset нужно создавать типа Unsigned.
+7. Вставить в файл APIKey.swift следующий код, заменив плейсхолдеры на данные, полученные в пункте 6.
 
 ```swift
 enum APIKey {
@@ -28,7 +33,5 @@ enum APIKey {
 }
 ```
 
-
 # Демо
 https://github.com/user-attachments/assets/2b863b47-f72d-4021-846d-9839e46fa916
-
