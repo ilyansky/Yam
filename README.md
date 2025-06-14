@@ -18,19 +18,13 @@
 - Менеджер зависимостей - SPM
 
 Чтобы собрать проект, нужно: 
-1. Создать проект в Firebase и поместить файл GoogleService-Info.plist  в директорию Yam/Yam/Core.
-2. В файле Yam/Yam/Service/ImageService.swift добавить свои данные в плейсхолдеры cloudNameSECURE и uploadPresetSECURE. Их можно получить на сайте https://cloudinary.com через открытый API.
+1. Создать проект в Firebase и поместить файл GoogleService-Info.plist  в директорию Yam/Yam/Core/Config.
+2. Создать файл APIKey.swift в директории Yam/Yam/Core/Config, получить секьюрные дынне на сайте https://cloudinary.com через открытый API, вставить в созданный файл следующий код, заменить плейсхолдеры на актуальные данные: 
 
 ```swift
-final class ImageService {
-
-    ...
-
-    let cloudNameSECURE: String = "YOUR_CLOUD_NAME"
-    var uploadPresetSECURE: String = "YOUR_UPLOAD_PRESET"
-    
-    ...
-
+enum APIKey {
+    static let cloudNameSECURE: String = "YOUR_CLOUD_NAME"
+    static let uploadPresetSECURE: String = "YOUR_UPLOAD_PRESET"
 }
 ```
 

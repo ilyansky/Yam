@@ -9,10 +9,6 @@ enum ImageServiceError: Error {
 final class ImageService {
 
     static let shared = ImageService()
-
-    let cloudNameSECURE: String = "YOUR_CLOUD_NAME"
-    var uploadPresetSECURE: String = "YOUR_UPLOAD_PRESET"
-
     var cloudinary: CLDCloudinary!
 
     private init() {
@@ -21,7 +17,7 @@ final class ImageService {
     }
 
     private func setCloudinary() {
-        let config = CLDConfiguration(cloudName: cloudNameSECURE, secure: true)
+        let config = CLDConfiguration(cloudName: APIKey.cloudNameSECURE, secure: true)
         cloudinary = CLDCloudinary(configuration: config)
     }
 
@@ -36,7 +32,7 @@ extension ImageService {
         }
 
         return try await withCheckedThrowingContinuation { continuation in
-            cloudinary.createUploader().upload(data: data, uploadPreset: uploadPresetSECURE) { response, error in
+            cloudinary.createUploader().upload(data: data, uploadPreset: APIKey.uploadPresetSECURE) { response, error in
 
                 DispatchQueue.main.async {
                     if let url = response?.secureUrl {

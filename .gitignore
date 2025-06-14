@@ -1,13 +1,13 @@
-Yam/Yam/Core/GoogleService-Info.plist
+**/.DS_Store
+**/GoogleService-Info.plist
+**/APIKey.swift
 
 # Created by https://www.toptal.com/developers/gitignore/api/swift,xcode,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=swift,xcode,macos
 
 ### macOS ###
 # General
-
-**/.DS_Store
-
+.DS_Store
 .AppleDouble
 .LSOverride
 
@@ -134,7 +134,5 @@ iOSInjectionProject/
 !*.xcworkspace/contents.xcworkspacedata
 /*.gcno
 **/xcshareddata/WorkspaceSettings.xcsettings
-*.xcuserstate
-
 
 # End of https://www.toptal.com/developers/gitignore/api/swift,xcode,macos
