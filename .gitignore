@@ -1,6 +1,6 @@
 **/.DS_Store
-**/GoogleService-Info.plist
-**/APIKey.swift
+Yam/Core/Config/GoogleService-Info.plist
+Yam/Core/Config/APIKey.swift
 
 # Created by https://www.toptal.com/developers/gitignore/api/swift,xcode,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=swift,xcode,macos

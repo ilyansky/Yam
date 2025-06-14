@@ -102,6 +102,7 @@
 		8786CF352DB4EA920010D079 /* CapsuleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8786CF342DB4EA920010D079 /* CapsuleButton.swift */; };
 		8786CF372DB4FCC60010D079 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8786CF362DB4FCC60010D079 /* Event.swift */; };
 		879592BE2DBD057C009B63D3 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 879592BD2DBD057C009B63D3 /* SDWebImageSwiftUI */; };
+		8795D2CB2DFDC85B00391564 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8795D2CA2DFDC85B00391564 /* GoogleService-Info.plist */; };
 		879ADAFF2D80A18400F43C04 /* LocationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879ADAFE2D80A18400F43C04 /* LocationHandler.swift */; };
 		879B8A8E2D4BB81000DB28CC /* DisabledLocationServicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879B8A8D2D4BB81000DB28CC /* DisabledLocationServicesView.swift */; };
 		879D29862DB52B96004A0B4D /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879D29852DB52B96004A0B4D /* ImageService.swift */; };
@@ -243,6 +244,7 @@
 		8786CF2C2DB4D3260010D079 /* LocationAuthStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationAuthStatus.swift; sourceTree = "<group>"; };
 		8786CF342DB4EA920010D079 /* CapsuleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapsuleButton.swift; sourceTree = "<group>"; };
 		8786CF362DB4FCC60010D079 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
+		8795D2CA2DFDC85B00391564 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		879ADAFE2D80A18400F43C04 /* LocationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationHandler.swift; sourceTree = "<group>"; };
 		879B8A8D2D4BB81000DB28CC /* DisabledLocationServicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisabledLocationServicesView.swift; sourceTree = "<group>"; };
 		879D29852DB52B96004A0B4D /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
@@ -563,6 +565,7 @@
 		8728E9182DFDB94D0049C83B /* Config */ = {
 			isa = PBXGroup;
 			children = (
+				8795D2CA2DFDC85B00391564 /* GoogleService-Info.plist */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -1020,6 +1023,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				870E3CAE2D4388D40043DA00 /* Preview Assets.xcassets in Resources */,
+				8795D2CB2DFDC85B00391564 /* GoogleService-Info.plist in Resources */,
 				87DAF8C82D4E775300C8C550 /* MontserratAlternates-Medium.ttf in Resources */,
 				87DAF8C92D4E775300C8C550 /* MontserratAlternates-Regular.ttf in Resources */,
 				87DAF8CA2D4E775300C8C550 /* MontserratAlternates-Bold.ttf in Resources */,
