@@ -60,7 +60,6 @@
 		8723CFEF2DB55C8800A0E194 /* Cloudinary in Frameworks */ = {isa = PBXBuildFile; productRef = 8723CFEE2DB55C8800A0E194 /* Cloudinary */; };
 		8723CFF42DB562A400A0E194 /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 8723CFF32DB562A400A0E194 /* SDWebImageMapKit */; };
 		8723CFF82DB5985D00A0E194 /* Field.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8723CFF72DB5985D00A0E194 /* Field.swift */; };
-		8728E9192DFDB94D0049C83B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 8728E9172DFDB94D0049C83B /* README.md */; };
 		872CBC4F2DB18E6900C7EBC4 /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872CBC4E2DB18E6900C7EBC4 /* InfoView.swift */; };
 		87336F4B2D7C329F00BD699A /* Const.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87336F4A2D7C329F00BD699A /* Const.swift */; };
 		87336F612D7C51A600BD699A /* EventsConst.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87336F602D7C51A600BD699A /* EventsConst.swift */; };
@@ -207,7 +206,6 @@
 		871903602DB834B4005DED9E /* BuildEventUIConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildEventUIConfig.swift; sourceTree = "<group>"; };
 		871903672DB844DB005DED9E /* BuildEventType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildEventType.swift; sourceTree = "<group>"; };
 		8723CFF72DB5985D00A0E194 /* Field.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Field.swift; sourceTree = "<group>"; };
-		8728E9172DFDB94D0049C83B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		872CBC4E2DB18E6900C7EBC4 /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 		87336F4A2D7C329F00BD699A /* Const.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Const.swift; sourceTree = "<group>"; };
 		87336F602D7C51A600BD699A /* EventsConst.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsConst.swift; sourceTree = "<group>"; };
@@ -565,7 +563,6 @@
 		8728E9182DFDB94D0049C83B /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				8728E9172DFDB94D0049C83B /* README.md */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -1028,7 +1025,6 @@
 				87DAF8CA2D4E775300C8C550 /* MontserratAlternates-Bold.ttf in Resources */,
 				87DAF8CB2D4E775300C8C550 /* MontserratAlternates-ExtraBold.ttf in Resources */,
 				87DAF8CC2D4E775300C8C550 /* MontserratAlternates-SemiBold.ttf in Resources */,
-				8728E9192DFDB94D0049C83B /* README.md in Resources */,
 				870E3CAF2D4388D40043DA00 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
